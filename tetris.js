@@ -3,6 +3,23 @@ const canvas = document.getElementById("tetris");
 const context = canvas.getContext("2d");
 context.scale(20, 20);
 
+//
+function arenaSweep() {
+  let rowCount = 1;
+  outer: for (let y = arena.length -1; y > 0; --y) {
+    for (let x = 0; x < arena[y].length; ++x) {
+      if (arena[y][x] === 0) {
+        continue outer;
+      }
+    }
+    const row = arena.splice(y, 1)[0].fill(0);
+    arena.unshift(row);
+    ++y;
+    player.score += rowCount * 10;
+    rowCount *= 2;
+  }
+}
+
 // collision detection
 function collide(arena, player) {
   const [m, o] = [player.matrix, player.pos];
@@ -35,42 +52,54 @@ function createPiece(type) {
     ];
   } else if (type === "O") {
     return [
-      [1, 1],
-      [1, 1],
+      [2, 2],
+      [2, 2],
     ];
   } else if (type === "L") {
     return [
-      [0, 1, 0],
-      [0, 1, 0],
-      [0, 1, 1],
+      [0, 3, 0],
+      [0, 3, 0],
+      [0, 3, 3],
     ];
   } else if (type === "J") {
     return [
-      [0, 1, 0],
-      [0, 1, 0],
-      [1, 1, 0],
+      [0, 4, 0],
+      [0, 4, 0],
+      [4, 4, 0],
     ];
   } else if (type === "I") {
     return [
-      [0, 1, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 0, 0],
+      [0, 5, 0, 0],
+      [0, 5, 0, 0],
+      [0, 5, 0, 0],
+      [0, 5, 0, 0],
     ];
   } else if (type === "S") {
     return [
-      [0, 1, 1],
-      [1, 1, 0],
+      [0, 6, 6],
+      [6, 6, 0],
       [0, 0, 0],
     ];
   } else if (type === "Z") {
     return [
-      [1, 1, 0],
-      [0, 1, 1],
+      [7, 7, 0],
+      [0, 7, 7],
       [0, 0, 0],
     ];
   }
 }
+
+// color
+const colors = [
+  null,
+  "#FF0D72",
+  "#0DC2FF",
+  "#0DFF72",
+  "#F538FF",
+  "#FF8E0D",
+  "#FFE138",
+  "#3877FF",
+];
 
 // draw function
 function draw() {
@@ -85,7 +114,7 @@ function drawMatrix(matrix, offset) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        context.fillStyle = "red";
+        context.fillStyle = colors[value];
         context.fillRect(x + offset.x, y + offset.y, 1, 1);
       }
     });
@@ -110,6 +139,8 @@ function playerDrop() {
     player.pos.y--;
     merge(arena, player);
     playerReset();
+    arenaSweep();
+    updateScore();
   }
   dropCounter = 0;
 }
@@ -131,6 +162,8 @@ function playerReset() {
     ((arena[0].length / 2) | 0) - ((player.matrix[0].length / 2) | 0);
   if (collide(arena, player)) {
     arena.forEach((row) => row.fill(0));
+    player.score = 0;
+    updateScore();
   }
 }
 
@@ -181,12 +214,18 @@ function update(time = 0) {
   requestAnimationFrame(update);
 }
 
+// score update
+function updateScore() {
+  document.getElementById("score").innerText = player.score;
+}
+
 const arena = createMatrix(12, 20);
 
 // player
 const player = {
-  pos: { x: 5, y: 5 },
-  matrix: createPiece("T"),
+  pos: { x: 0, y: 0 },
+  matrix: null,
+  score: 0,
 };
 
 // keyboard controls
@@ -205,5 +244,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 // call functions
-draw();
+
+playerReset();
+updateScore();
 update();

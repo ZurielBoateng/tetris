@@ -2,11 +2,25 @@
 <html lang="en">
   <head>
     <title>Tetris</title>
+    <style>
+      body {
+        background: darkslateblue;
+        color: white;
+        font-family: sans-serif;
+        font-size: 2em;
+        text-align: center;
+      }
+      canvas {
+        border: solid 0.2rem white;
+        height: 90vh;
+      }
+    </style>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
+    <div id="score"></div>
     <canvas id="tetris" width="240" height="400"></canvas>
     <script src="tetris.js"></script>
   </body>
